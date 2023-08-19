@@ -239,3 +239,127 @@ This makes our next steps SO MUCH easier! Easy is good. Remember we're lazy.
 
 Note: just because when I started building this script, I still didn't have the usd assets published, I kept both, abc and usd files paths. And also because it would be extremely easy to switch between formats since I have both stored.
 
+But now I do have the usds properly published, thank you David Bastidas.
+
+## **Step 3: Create the blocks for the city. Each block will be its own USD file.**
+
+```python
+### THIS CODE HAS TO BE EXECUTED FROM A PYTHON SCRIPT NODE IN SOLARIS
+
+from pxr import Usd, UsdGeom, Gf
+import hou
+import json
+
+node = hou.pwd()
+
+
+class blockbuild():
+    def __init__(self):
+        self.dictread()
+    
+    def dictread(self):
+        self.citydict = open("P:/AndreJukebox/assets/sets/city/publish/xml/block_builder.json")
+        self.cityread = json.load(self.citydict)
+    
+    def blockslist(self):
+        for keys in self.cityread:
+            blockhierarchy = keys.rsplit("_",1)[0]
+            block_stage = f'P:/AndreJukebox/assets/sets/{blockhierarchy}/publish/usd/{blockhierarchy}.usd'
+            self.stage = Usd.Stage.CreateNew(block_stage)
+            group_prim_path = f'/{keys}'
+            group_prim = self.stage.DefinePrim(group_prim_path,'Xform')
+            self.createRefs(blocks=keys,refsnum=len(self.cityread[keys]['assets']))
+            group_model = Usd.ModelAPI(group_prim)
+            group_model.SetKind("group")
+            self.stage.GetRootLayer().Save()
+            # print('________DONE_________')
+    
+    def createRefs(self, blocks, refsnum):    
+        iteration = 0
+        for buildings in self.cityread[blocks]['assets']:
+            xform = (self.cityread[blocks]['assets'][buildings]['xform'])
+            assetname = buildings.rsplit("_",1)[0]
+            new_building = f"/{blocks}/{buildings}"
+            
+            print(new_building)
+
+            new_prim = self.stage.DefinePrim(new_building)
+            assetabc = (self.cityread[blocks]['assets'][buildings]['abcpath'])
+            new_prim.GetReferences().AddReference(assetabc)
+            new_prim.SetInstanceable(True)
+            building_model = Usd.ModelAPI(new_prim)
+            building_model.SetKind("component")
+            
+            # assign the matrix to each building
+            target_path = self.stage.GetPrimAtPath(new_building)
+            xformable = UsdGeom.Xformable(target_path)
+            transform_matrix = eval(xform)
+            final_matrix = Gf.Matrix4d(transform_matrix)
+            xformable.ClearXformOpOrder()
+            xformable.AddTransformOp().Set(value=final_matrix)
+
+
+blockbuild().blockslist()
+```
+
+## **Step 4: Create the city**
+```python
+### THIS CODE HAS TO BE EXECUTED FROM A PYTHON SCRIPT NODE IN SOLARIS
+
+from pxr import Usd, UsdGeom, Gf
+import hou
+import json
+node = hou.pwd()
+
+class blockbuild():
+    def __init__(self):
+        self.dictread()
+    
+    def dictread(self):
+        self.citydict = open("P:/AndreJukebox/assets/sets/city/publish/xml/city_builder.json")
+        self.cityread = json.load(self.citydict)
+    
+    def blockslist(self):
+        block_stage = f'P:/AndreJukebox/assets/sets/city/publish/usd/city.usd'
+        self.stage = Usd.Stage.CreateNew(block_stage)
+        city_prim = self.stage.DefinePrim("/city", "Xform")
+        city_prim.SetInstanceable(True)
+        city_model = Usd.ModelAPI(city_prim)
+        city_model.SetKind("assembly")
+
+        for keys in self.cityread:
+            print(keys)
+            self.createRefs(blocks=keys,refsnum=len(self.cityread[keys]))
+            
+        self.stage.GetRootLayer().Save()
+        
+        print('________DONE_________')
+    
+    def createRefs(self, blocks, refsnum):    
+
+        xform = (self.cityread[blocks]['xform'])
+        assetname = blocks.rsplit("_",1)[0]
+
+        block_asset = blocks.rsplit("_",1)[0]
+        new_block = f"/city/{blocks}"
+
+        groupusd = (self.cityread[blocks]['usdpath'])
+        
+        new_prim = self.stage.DefinePrim(new_block, "Xform")
+        building_prim = f'/{block_asset}_0001'
+        
+        new_prim.GetReferences().AddReference(groupusd, building_prim)
+        new_prim.SetInstanceable(True)
+        
+        # assign the matrix to each building
+
+        target_path = self.stage.GetPrimAtPath(new_block)
+        xformable = UsdGeom.Xformable(target_path)
+        transform_matrix = eval(xform)
+        final_matrix = Gf.Matrix4d(transform_matrix)
+        xformable.ClearXformOpOrder()
+        xformable.AddTransformOp().Set(value=final_matrix)
+
+
+blockbuild().blockslist()
+```
