@@ -8,7 +8,7 @@ Use case: I had a whole city set built in maya, and I wanted to transform it int
 To start, I´ll share the code I used inside Solaris, this plus a dictionary extracted from an xml file, is all that´s needed to re build.
 I'll explain each python file by phases.
 
-[https://github.com/JonnhyRDG/ajhoudini](.https://github.com/JonnhyRDG/ajhoudini).
+[https://github.com/JonnhyRDG/ajhoudini]
 
 Context. I have a set that is composed of a group of assets. So in that regard, I need to generate each part separately. This parts will be called.
 Blocks = groups of buildings/houses.
