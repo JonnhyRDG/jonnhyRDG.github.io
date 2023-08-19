@@ -3,7 +3,7 @@ layout: ajhoudini
 ---
 # **Solaris/Python : Re building an existing set in Maya to USD**
 
-Use case: I had a whole city set built in maya, and I wanted to transform it into USD taking advantage of it´s very simple instance and reference systems.
+Use case: I had a whole city set built in maya, and I wanted to transform it into USD taking advantage of it´s very simple and efficient instance and reference systems.
 
 To start, I´ll share the code I used inside Solaris, this plus a dictionary extracted from an xml file, is all that´s needed to re build.
 I'll explain each python file by phases.
@@ -11,6 +11,7 @@ I'll explain each python file by phases.
 [JonnhyRDG/ajhoudini](https://github.com/JonnhyRDG/ajhoudini)
 
 Context. I have a set that is composed of a group of assets. So in that regard, I need to generate each part separately. This parts will be called.
+
 Blocks = groups of buildings/houses.
 City = group of Blocks (plus trees and other elements, that are also grouped)
 So this is what the hierarchy looks like.
