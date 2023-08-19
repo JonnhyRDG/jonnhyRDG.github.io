@@ -15,11 +15,15 @@ Context. I have a set that is composed of a group of assets. So in that regard, 
 Blocks = groups of buildings/houses.
 City = group of Blocks (plus trees and other elements, that are also grouped)
 So this is what the hierarchy looks like.
+
+```python
 City
  |_Block01_A_01
  |_Block01_A_02
           |_building01_A_01
           |_building01_A_02
+```
+
 So you'll see in the python scripts, the first step is to generate the blocks, and then the city.
 
 ## **Step 1: Exporting the XML file from Maya.**
