@@ -1,9 +1,11 @@
 ---
 layout: ajhoudini
 ---
-# **Solaris/Python : Re building an existing set in Maya to USD**
+# **Rebuilding in Solaris/USD an existing set assembled in Maya with nested references, with python**
 
 Use case: I had a whole city set built in maya, and I wanted to transform it into USD taking advantage of it´s very simple and efficient instance and reference systems.
+* * *
+Also, I didn't want to manually place a single building, because they are too many and I'm lazy. We're talking about 200 buildings, and I don't even know how many other set dressing elements.
 
 To start, I´ll share the code I used inside Solaris, this plus a dictionary extracted from an xml file, is all that´s needed to re build.
 I'll explain each python file by phases.
