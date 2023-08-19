@@ -85,7 +85,9 @@ def assetListFromXML(xml):
 This will allow us to have a couple of *if* statements, so according to which xml object we pass, it will act differently.
 
 And now, we're going to access the root of the xml file, and keep it in a variable. For a better overall understanding on how python process, reads and writes xml files I'd recommend watching this:
+
 [Parse XML Files with Python - Basics in 10 Minutes by "max on tech"](https://www.youtube.com/watch?v=5SlemSWGD1g&t=1s&ab_channel=maxontech)
+
 Subscribe to the guy by the way, he's cool.
 
 ```python
@@ -174,3 +176,66 @@ And then we just have to place each value in the new structure, calling the keys
   group_matrix = f'( ({tdict[1]},{tdict[2]},{tdict[3]},{tdict[4]}),({tdict[5]},{tdict[6]},{tdict[7]},{tdict[8]}),({tdict[9]},{tdict[10]},{tdict[11]},{tdict[12]}),({tdict[13]},{tdict[14]},{tdict[15]},{tdict[16]}) )'
 ```
 And that's it, we're now storing all matrices in the correct format. This will be VERY important later.
+
+
+In this last part of the code, I just do the exact same thing just going in a level deeper. Inception style.
+```python
+                for assetGroups in childInstance[2]:
+                    assetdict = {}
+                    for assetUnit in assetGroups[2]:
+                        assetname = assetUnit.attrib["name"].split(":")
+                        assetclean = assetname[2].rsplit("_",1)[0]
+                        
+                        # final info variables
+                        assetpath = assetUnit.attrib["refFile"]
+                        usdassetpath = assetpath.replace(".abc",".usd").replace('publish/cache','publish/usd')
+                        assetInstance = f'{assetclean}_{int(assetname[1].rsplit("_",1)[1]):04d}'
+                        xform = assetUnit[1].attrib["value"]
+
+                        # Reformat the matrix string for USD
+                        tr = xform.split(" ")
+                        tdict = {}
+                        iter = 0
+                        for i in tr:
+                            iter = iter + 1
+                            tdict[iter] = i
+
+                        asset_matrix = f'( ({tdict[1]},{tdict[2]},{tdict[3]},{tdict[4]}),({tdict[5]},{tdict[6]},{tdict[7]},{tdict[8]}),({tdict[9]},{tdict[10]},{tdict[11]},{tdict[12]}),({tdict[13]},{tdict[14]},{tdict[15]},{tdict[16]}) )'
+                        assetdict[assetInstance] = {"xform":asset_matrix, "abcpath":assetpath,"usdpath":usdassetpath}
+                        blocksdict[group] = {"xform":group_matrix, "usdpath":groupusd, "assets":assetdict}
+    
+    if xml == xmlblock:
+        with open('P:/AndreJukebox/assets/sets/city/publish/xml/block_builder.json', 'w') as blockdict:
+            json.dump(blocksdict, blockdict)
+    else:
+        with open('P:/AndreJukebox/assets/sets/city/publish/xml/city_builder.json', 'w') as citydict:
+            json.dump(blocksdict, citydict)
+
+assetListFromXML(xml=xmlblock)
+assetListFromXML(xml=xmlcity)
+```
+Keep in mind all the splitting of strings is quite customized to my particular structure of namespaces and conventions I had in maya (which was a bit messy but I've done it years ago, leave me alone)
+As for the last two lines, I'm calling the functions and passing the different xml files. According to which xml file the function receives, the "if" statements change a couple things. Like the group iterations and which dictionary to write.
+
+So we go from something like this:
+
+```xml
+<instanceList>
+      <instance groupType="assembly" name="block01_A_01:block01_A" type="group"><bounds maxx="6915.81224308" maxy="4445.54075834" maxz="5994.64990971" minx="-7318.69642493" miny="-5.48417213559" minz="-7161.32108959" />
+      <xform value="1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0" />
+            <instanceList>
+                  <instance name="block01_A_01:am030_01:AM215_030_loc" refFile="P:/AndreJukebox/assets/sets/AM215_030/publish/cache/AM215_030.abc" refType="abc" type="reference"><bounds maxx="980.548404712" maxy="3318.98790847" maxz="-2516.626905" minx="-781.32555769" miny="-0.9227360636" minz="-4477.12873605" /><xform value="0.0 0.0 -1.0 0.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 0.0 119.738407153 0.0772639364004 -3482.42872384 1.0" /><lookFile ref="P:/AndreJukebox/assets/sets/AM215_030/publish/klf/AM215_030.klf" />
+```
+
+To something like this:
+
+```python
+{"block01_A": 
+    {"xform": "( (1.0,0.0,0.0,0.0),(0.0,1.0,0.0,0.0),(0.0,0.0,1.0,0.0),(0.0,0.0,0.0,1.0) )", "usdpath": "P:/AndreJukebox/assets/sets/block01_A/publish/usd/block01_A.usd", 
+    "assets": {"AM215_030_0001": {"xform": "( (0.0,0.0,-1.0,0.0),(0.0,1.0,0.0,0.0),(1.0,0.0,0.0,0.0),(119.738407153,0.0772639364004,-3482.42872384,1.0) )", "abcpath": "P:/AndreJukebox/assets/sets/AM215_030/publish/cache/AM215_030.abc", "usdpath": "P:/AndreJukebox/assets/sets/AM215_030/publish/usd/AM215_030.usd"}
+```
+We have now cleaned a bunch of useless namespace, get rid of the bounds which we don't need, reformat all the matrices and kept information like file location. Which now can be easily accesed in a simple for loop and dictionary keys!
+This makes our next steps SO MUCH easier! Easy is good. Remember we're lazy.
+
+Note: just because when I started building this script, I still didn't have the usd assets published, I kept both, abc and usd files paths. And also because it would be extremely easy to switch between formats since I have both stored.
+
