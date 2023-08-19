@@ -1,6 +1,7 @@
----
-layout: default
----
+#---
+#layout: default
+#---
+
 # Solaris/Python : Re building an existing set in Maya to USD
 
 Use case: I had a whole city set built in maya, and I wanted to transform it into USD taking advantage of it´s very simple instance and reference systems.
