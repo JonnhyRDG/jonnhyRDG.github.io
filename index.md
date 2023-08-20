@@ -22,9 +22,9 @@ This is what this "Blocks" look like. Just a couple samples.
 City = group of Blocks (plus trees and other elements, that are also grouped). This is what the city looks like:
 ![City](https://jonnhyrdg.github.io/assets/images/city_samples.jpg)
 
+<br><br>
 
-
-So this is what the hierarchy looks like.
+### So this is what the hierarchy looks like.
 
 ```python
 City
@@ -41,6 +41,7 @@ City
 So you'll see in the python scripts, the first step is to generate the blocks, and then the city.
 
 * * * 
+<br><br>
 
 ## **Step 1: Exporting the XML file from Maya.**
 Here's a snippet I got from chatGPT to export xml data with matrices from maya. 
@@ -286,7 +287,7 @@ class blockbuild():
         self.citydict = open("P:/AndreJukebox/assets/sets/city/publish/xml/block_builder.json")
         self.cityread = json.load(self.citydict)
 ```
-
+<br>
 
 Let's go to the juicy part.
 
@@ -338,7 +339,7 @@ group_prim = self.stage.DefinePrim(group_prim_path,'Xform')
 Now we're basically creating a prim inside our stage. Keep in mind that the prim path has to be absolute. And after the path, we're telling Solaris that this prim is an "Xform".
 
 The prim will look like this, for example:
-![City](https://jonnhyrdg.github.io/assets/images/define_prim.PNG)
+<br>![City](https://jonnhyrdg.github.io/assets/images/define_prim.PNG)
 
 So now that we have a hierarchy for the block, we're going to reference each asset and place it under it.
 
