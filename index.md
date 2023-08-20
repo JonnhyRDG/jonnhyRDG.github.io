@@ -10,7 +10,7 @@ Also, I didn't want to manually place a single building, because they are too ma
 To start, I´ll share the code I used inside Solaris, this plus a dictionary extracted from an xml file, is all that´s needed to re build.
 I'll explain each python file by phases.
 
-[JonnhyRDG/ajhoudini](https://github.com/JonnhyRDG/ajhoudini)
+> [JonnhyRDG/ajhoudini](https://github.com/JonnhyRDG/ajhoudini)
 
 Context. I have a set that is composed of a group of assets. So in that regard, I need to generate each part separately. This parts will be called.
 
@@ -18,8 +18,13 @@ Blocks = groups of buildings/houses.
 
 This is what this "Blocks" look like. Just a couple samples.
 ![Block01_A](https://jonnhyrdg.github.io/assets/images/block_sample.PNG)
+![Buildings_01](https://jonnhyrdg.github.io/assets/images/building_sample.PNG)
 
-City = group of Blocks (plus trees and other elements, that are also grouped)
+City = group of Blocks (plus trees and other elements, that are also grouped). This is what the city looks like:
+![City](https://jonnhyrdg.github.io/assets/images/city_samples.jpg)
+
+
+
 So this is what the hierarchy looks like.
 
 ```python
@@ -90,7 +95,7 @@ This will allow us to have a couple of *if* statements, so according to which xm
 
 And now, we're going to access the root of the xml file, and keep it in a variable. For a better overall understanding on how python process, reads and writes xml files I'd recommend watching this:
 
-[Parse XML Files with Python - Basics in 10 Minutes by "max on tech"](https://www.youtube.com/watch?v=5SlemSWGD1g&t=1s&ab_channel=maxontech)
+> [Parse XML Files with Python - Basics in 10 Minutes by "max on tech"](https://www.youtube.com/watch?v=5SlemSWGD1g&t=1s&ab_channel=maxontech)
 
 Subscribe to the guy by the way, he's cool.
 
