@@ -255,6 +255,7 @@ But now I do have the usds properly published, thank you David Bastidas.
 
 ## **Step 3: Create the blocks for the city. Each block will be its own USD file.**
 
+All this below section does is to bring the modules, and wrap the houdini object in a variable so we can access it's funciones in simple lines later.
 ```python
 ### THIS CODE HAS TO BE EXECUTED FROM A PYTHON SCRIPT NODE IN SOLARIS
 
@@ -263,8 +264,11 @@ import hou
 import json
 
 node = hou.pwd()
+```
+Also we're going to wrap this into a class, in case that's needed later (spoiler alert, it wasn').
+We execute the import of the dictionary we wrote for the blocks, in the init.
 
-
+```python
 class blockbuild():
     def __init__(self):
         self.dictread()
@@ -272,7 +276,18 @@ class blockbuild():
     def dictread(self):
         self.citydict = open("P:/AndreJukebox/assets/sets/city/publish/xml/block_builder.json")
         self.cityread = json.load(self.citydict)
-    
+```
+
+
+Let's go to the juicy part.
+
+In the following loop we're going to create a usd file pero BLOCK. For this we're going to loop through our blocks dictionary, and extract the keys.
+Each KEY is a BLOCK. And each BLOCK will have its usd file to reference later.
+
+> Remember! We have to execute this in Solaris, from inside a python script node. As far as I understood, this is so we can act/write in an active stage/layer.
+> But don't quote me on this, I'm also learning about all this stuff.
+
+```python
     def blockslist(self):
         for keys in self.cityread:
             blockhierarchy = keys.rsplit("_",1)[0]
@@ -286,19 +301,88 @@ class blockbuild():
             self.stage.GetRootLayer().Save()
             # print('________DONE_________')
     
+```
+### Create a stage.
+We need to create a usd file per block, so that means creating a stage for each one of them.
+
+Which is why it's inside a loop. I did hardcoded part of the path though.
+```python
+blockhierarchy = keys.rsplit("_",1)[0]
+block_stage = f'P:/AndreJukebox/assets/sets/{blockhierarchy}/publish/usd/{blockhierarchy}.usd'
+self.stage = Usd.Stage.CreateNew(block_stage)
+self.stage.GetRootLayer().Save()
+```
+The blockhierarchy and block_stage variables are just strings. What's creating the actual stage:
+```python
+self.stage = Usd.Stage.CreateNew(block_stage)
+```
+And this is what's going to write the file to disk.
+```python
+self.stage.GetRootLayer().Save()
+```
+But I'm getting ahead of my self. Before we save it to disk we need to define the prims and references of each asset inside the block.
+
+So we're going to define a prim, as you know __everything__ in a USD stage is a prim. So we will also specify what's the type.
+```python
+group_prim = self.stage.DefinePrim(group_prim_path,'Xform')
+```
+Now we're basically creating a prim inside our stage. Keep in mind that the prim path has to be absolute. And after the path, we're telling Solaris that this prim is an "Xform".
+
+The prim will look like this, for example:
+![City](https://jonnhyrdg.github.io/assets/images/define_prim.PNG)
+
+So now that we have a hierarchy for the block, we're going to reference each asset and place it under it.
+
+```python
     def createRefs(self, blocks, refsnum):    
         iteration = 0
         for buildings in self.cityread[blocks]['assets']:
             xform = (self.cityread[blocks]['assets'][buildings]['xform'])
             assetname = buildings.rsplit("_",1)[0]
             new_building = f"/{blocks}/{buildings}"
-            
             print(new_building)
+```
+So what is this loop doing? Simple. For each block, we're going to dive in, and format our new prims, and store the xform of each, which we'll use later.
 
+The print there is so we can keep track of what's happening.
+
+Ok, so what's next? As before we'll define each prim but now for the assets.
+```python
             new_prim = self.stage.DefinePrim(new_building)
-            assetabc = (self.cityread[blocks]['assets'][buildings]['abcpath'])
-            new_prim.GetReferences().AddReference(assetabc)
+```
+
+And now we're going to retrieve the assets usd file with the 'usdpath' key in our dictioary.
+```python
+            assetusd = (self.cityread[blocks]['assets'][buildings]['usdpath'])
+```
+Below, we'll actually add the reference, and set it to instanceable.
+
+```ptyhon
+            new_prim.GetReferences().AddReference(assetusd)
             new_prim.SetInstanceable(True)
+```
+To better understand what's that for, this is the USD python api way to do exactly the same as this below.
+![City](https://jonnhyrdg.github.io/assets/images/reference_sample.PNG)
+
+**GetReferences().AddReference()** is the python equivalent to add a reference and setting the **File Pattern**.
+
+**SetInstanceable(True)** is the python equivalent to tick the **Make Instanceable** checkbox.
+
+Now instead of doing all of that manually, we'll just store it in ram and write it straight to a usd file. Which will basically look like this.
+
+```
+#usda 1.0
+
+def "city"
+{
+    def Xform "block01_A_0001" (
+        instanceable = true
+        prepend references = @P:/AndreJukebox/assets/sets/block01_A/publish/usd/block01_A.usd@</block01_A_0001>
+    )
+```
+
+
+```python
             building_model = Usd.ModelAPI(new_prim)
             building_model.SetKind("component")
             
@@ -313,6 +397,12 @@ class blockbuild():
 
 blockbuild().blockslist()
 ```
+
+
+
+
+
+
 
 ## **Step 4: Create the city**
 ```python
