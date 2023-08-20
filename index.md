@@ -33,6 +33,10 @@ City
           |_building01_A_01
           |_building01_A_02
 ```
+### And this is a visual representation of how I assembled the set (and yes, I did all that manually because reasons).
+![CityGrpah](https://jonnhyrdg.github.io/assets/images/city_assembly_graph.jpg)
+
+
 
 So you'll see in the python scripts, the first step is to generate the blocks, and then the city.
 
