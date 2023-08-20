@@ -17,8 +17,7 @@ Context. I have a set that is composed of a group of assets. So in that regard, 
 Blocks = groups of buildings/houses.
 
 This is what this "Blocks" look like. Just a couple samples.
-![Block01_A](https://jonnhyrdg.github.io/assets/images/block_sample.PNG)
-![Buildings_01](https://jonnhyrdg.github.io/assets/images/building_sample.PNG)
+![Block01_A](https://jonnhyrdg.github.io/assets/images/blocks_sample.jpg)
 
 City = group of Blocks (plus trees and other elements, that are also grouped). This is what the city looks like:
 ![City](https://jonnhyrdg.github.io/assets/images/city_samples.jpg)
