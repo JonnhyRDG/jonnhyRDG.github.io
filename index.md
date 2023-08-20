@@ -40,6 +40,8 @@ City
 
 So you'll see in the python scripts, the first step is to generate the blocks, and then the city.
 
+* * * 
+
 ## **Step 1: Exporting the XML file from Maya.**
 Here's a snippet I got from chatGPT to export xml data with matrices from maya. 
 It can be customized to export whatever you want from it, but you have to dig into it a bit.
@@ -72,6 +74,9 @@ tree.write(output_path)
 
 print("XML exported successfully.")
 ```
+
+* * * 
+
 ## **Step 2: Extracting and converting the XML data into an easily readable dictionary**
 ```python
 import xml.etree.ElementTree as ET
@@ -252,6 +257,10 @@ This makes our next steps SO MUCH easier! Easy is good. Remember we're lazy.
 Note: just because when I started building this script, I still didn't have the usd assets published, I kept both, abc and usd files paths. And also because it would be extremely easy to switch between formats since I have both stored.
 
 But now I do have the usds properly published, thank you David Bastidas.
+
+
+* * * 
+
 
 ## **Step 3: Create the blocks for the city. Each block will be its own USD file.**
 
@@ -445,7 +454,7 @@ def "city"
 See how the matrix4d xform operator has been added to the previous example. That means now we have all the transforms we had in maya, translated and setup in USD referenced prims.
 
 
-
+* * * 
 
 
 ## **Step 4: Create the city**
@@ -521,6 +530,11 @@ class blockbuild():
 blockbuild().blockslist()
 ```
 
+* * * 
+
 > The most difficult part were the ones that included USD python API, since it's not that well documented and I don't have a great understanding of all things usd so far.
 > So maybe it was just me not knowing how to look for stuff rather than poor documentation.
 
+![dccs](https://jonnhyrdg.github.io/assets/images/dccs.jpg)
+> And that's how the same set can now be shared between dccs. The lookdev is done in Katana, so for now, I'm still using lookfiles.
+> But soon, when a couple of bugs get ironed out in the next release, I'll export the exact same lookdev in usd, so I won't need to do that anymore.
