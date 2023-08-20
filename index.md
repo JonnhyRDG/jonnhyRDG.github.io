@@ -1,10 +1,10 @@
 ---
 layout: ajhoudini
 ---
-# **Rebuilding in Solaris/USD an existing set assembled in Maya (nested references), with python**
+# **Rebuilding in Solaris/USD an existing set assembled in Maya (nested references), with python.**
 
 Use case: I had a whole city set built in maya, and I wanted to transform it into USD taking advantage of it´s very simple and efficient instance and reference systems.
-* * *
+
 Also, I didn't want to manually place a single building, because they are too many and I'm lazy. We're talking about 200 buildings, and I don't even know how many other set dressing elements.
 
 To start, I´ll share the code I used inside Solaris, this plus a dictionary extracted from an xml file, is all that´s needed to re build.
@@ -39,14 +39,12 @@ City
 
 
 So you'll see in the python scripts, the first step is to generate the blocks, and then the city.
-
-* * * 
 <br><br>
-
+* * * 
 ## **Step 1: Exporting the XML file from Maya.**
-Here's a snippet I got from chatGPT to export xml data with matrices from maya. 
-It can be customized to export whatever you want from it, but you have to dig into it a bit.
-I do have a custom code/api a TD did for me, but this is the gist of it.
+Here's a snippet I got from chatGPT to export xml data with matrices from maya.<br> 
+It can be customized to export whatever you want from it, but you have to dig into it a bit.<br>
+I do have a custom code/api a TD did for me, but this is the gist of it.<br>
 ```python
 import xml.etree.ElementTree as ET
 import maya.cmds as cmds
@@ -75,9 +73,8 @@ tree.write(output_path)
 
 print("XML exported successfully.")
 ```
-
+<br><br>
 * * * 
-
 ## **Step 2: Extracting and converting the XML data into an easily readable dictionary**
 ```python
 import xml.etree.ElementTree as ET
@@ -259,10 +256,8 @@ Note: just because when I started building this script, I still didn't have the 
 
 But now I do have the usds properly published, thank you David Bastidas.
 
-
+<br><br>
 * * * 
-
-
 ## **Step 3: Create the blocks for the city. Each block will be its own USD file.**
 
 All this below section does is to bring the modules, and wrap the houdini object in a variable so we can access it's funciones in simple lines later.
@@ -390,12 +385,16 @@ Now instead of doing all of that manually, we'll just store it in ram and write 
 ```
 #usda 1.0
 
-def "city"
+def Xform "block01_A" (
+    kind = "group"
+)
 {
-    def Xform "block01_A_0001" (
+    def "AM215_030_0001" (
         instanceable = true
-        prepend references = @P:/AndreJukebox/assets/sets/block01_A/publish/usd/block01_A.usd@</block01_A_0001>
+        kind = "component"
+        prepend references = @P:/AndreJukebox/assets/sets/AM215_030/publish/usd/AM215_030.usd@
     )
+}
 ```
 
 And now we have finally arrived to the part that we didn't want to do manually. Which is to set the transformations to each individual asset, for form the blocks.
@@ -441,23 +440,25 @@ And now each asset inside the block will look like this in the resulting usd fil
 ```
 #usda 1.0
 
-def "city"
+def Xform "block01_A" (
+    kind = "group"
+)
 {
-    def Xform "block01_A_0001" (
+    def "AM215_030_0001" (
         instanceable = true
-        prepend references = @P:/AndreJukebox/assets/sets/block01_A/publish/usd/block01_A.usd@</block01_A_0001>
+        kind = "component"
+        prepend references = @P:/AndreJukebox/assets/sets/AM215_030/publish/usd/AM215_030.usd@
     )
     {
-        matrix4d xformOp:transform = ( (0.974687108055, 0, -0.223573346783, 0), (0, 1, 0, 0), (0.223573346783, 0, 0.974687108055, 0), (-2224.29115274, 0, 10134.0503922, 1) )
+        matrix4d xformOp:transform = ( (0, 0, -1, 0), (0, 1, 0, 0), (1, 0, 0, 0), (119.738407153, 0.0772639364004, -3482.42872384, 1) )
         uniform token[] xformOpOrder = ["xformOp:transform"]
     }
+}
 ```
 See how the matrix4d xform operator has been added to the previous example. That means now we have all the transforms we had in maya, translated and setup in USD referenced prims.
 
-
+<br><br>
 * * * 
-
-
 ## **Step 4: Create the city**
 
 I could elaborate on this, but basically, this second script is exactly the same as the step above, it just stays in a level above. Since I don't have to go to the asset level, it has one less loop, and will only work on the blocks level.
@@ -531,8 +532,9 @@ class blockbuild():
 blockbuild().blockslist()
 ```
 
+<br><br>
 * * * 
-
+# Conclusions:
 > The most difficult part were the ones that included USD python API, since it's not that well documented and I don't have a great understanding of all things usd so far.
 > So maybe it was just me not knowing how to look for stuff rather than poor documentation.
 
