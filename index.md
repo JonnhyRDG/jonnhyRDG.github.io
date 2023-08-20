@@ -15,6 +15,10 @@ I'll explain each python file by phases.
 Context. I have a set that is composed of a group of assets. So in that regard, I need to generate each part separately. This parts will be called.
 
 Blocks = groups of buildings/houses.
+
+This is what this "Blocks" look like. Just a couple samples.
+![Block01_A](https://jonnhyrdg.github.io/assets/images/block_sample.PNG)
+
 City = group of Blocks (plus trees and other elements, that are also grouped)
 So this is what the hierarchy looks like.
 
