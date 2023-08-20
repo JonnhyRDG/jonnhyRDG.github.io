@@ -334,13 +334,13 @@ The prim will look like this, for example:
 So now that we have a hierarchy for the block, we're going to reference each asset and place it under it.
 
 ```python
-    def createRefs(self, blocks, refsnum):    
-        iteration = 0
-        for buildings in self.cityread[blocks]['assets']:
-            xform = (self.cityread[blocks]['assets'][buildings]['xform'])
-            assetname = buildings.rsplit("_",1)[0]
-            new_building = f"/{blocks}/{buildings}"
-            print(new_building)
+def createRefs(self, blocks, refsnum):    
+    iteration = 0
+    for buildings in self.cityread[blocks]['assets']:
+        xform = (self.cityread[blocks]['assets'][buildings]['xform'])
+        assetname = buildings.rsplit("_",1)[0]
+        new_building = f"/{blocks}/{buildings}"
+        print(new_building)
 ```
 So what is this loop doing? Simple. For each block, we're going to dive in, and format our new prims, and store the xform of each, which we'll use later.
 
@@ -348,18 +348,18 @@ The print there is so we can keep track of what's happening.
 
 Ok, so what's next? As before we'll define each prim but now for the assets.
 ```python
-            new_prim = self.stage.DefinePrim(new_building)
+new_prim = self.stage.DefinePrim(new_building)
 ```
 
 And now we're going to retrieve the assets usd file with the 'usdpath' key in our dictioary.
 ```python
-            assetusd = (self.cityread[blocks]['assets'][buildings]['usdpath'])
+assetusd = (self.cityread[blocks]['assets'][buildings]['usdpath'])
 ```
 Below, we'll actually add the reference, and set it to instanceable.
 
 ```ptyhon
-            new_prim.GetReferences().AddReference(assetusd)
-            new_prim.SetInstanceable(True)
+new_prim.GetReferences().AddReference(assetusd)
+new_prim.SetInstanceable(True)
 ```
 To better understand what's that for, this is the USD python api way to do exactly the same as this below.
 ![City](https://jonnhyrdg.github.io/assets/images/reference_sample.PNG)
@@ -367,6 +367,13 @@ To better understand what's that for, this is the USD python api way to do exact
 **GetReferences().AddReference()** is the python equivalent to add a reference and setting the **File Pattern**.
 
 **SetInstanceable(True)** is the python equivalent to tick the **Make Instanceable** checkbox.
+
+At last, we'll set the prim kind:
+
+```python
+building_model = Usd.ModelAPI(new_prim)
+building_model.SetKind("component")
+```
 
 Now instead of doing all of that manually, we'll just store it in ram and write it straight to a usd file. Which will basically look like this.
 
@@ -381,30 +388,78 @@ def "city"
     )
 ```
 
+And now we have finally arrived to the part that we didn't want to do manually. Which is to set the transformations to each individual asset, for form the blocks.
 
+In the last step, we will do the exact same thing to each iteration of the blocks instead of the assets.
+
+First we need to convert our "new_building" string into a usd object.
 ```python
-            building_model = Usd.ModelAPI(new_prim)
-            building_model.SetKind("component")
-            
-            # assign the matrix to each building
-            target_path = self.stage.GetPrimAtPath(new_building)
-            xformable = UsdGeom.Xformable(target_path)
-            transform_matrix = eval(xform)
-            final_matrix = Gf.Matrix4d(transform_matrix)
-            xformable.ClearXformOpOrder()
-            xformable.AddTransformOp().Set(value=final_matrix)
+# assign the matrix to each building
+target_path = self.stage.GetPrimAtPath(new_building)
+```
 
+And the turn that object into an xformable object.
+```python
+xformable = UsdGeom.Xformable(target_path)
+```
 
+Another string we need to convert is the xform, which comes as a string type stored in a dictionary.
+To turn it into a tuple, we'll evaluate that string.
+```python
+transform_matrix = eval(xform)
+```
+
+Next, we'll convert that tupple into a Matrix4d object that the Gf module will understand as such.
+```python
+final_matrix = Gf.Matrix4d(transform_matrix)
+```
+
+Final step is to clear our xformable object of any xforms operators it might have and add the transform.
+Chances are you don't have any since none has been created before, but sometimes the code fails if you don't do the clean.
+```python
+xformable.ClearXformOpOrder()
+xformable.AddTransformOp().Set(value=final_matrix)
+```
+
+And now we'll just execute the function.
+```python
 blockbuild().blockslist()
 ```
 
+And now each asset inside the block will look like this in the resulting usd file.
 
+```
+#usda 1.0
+
+def "city"
+{
+    def Xform "block01_A_0001" (
+        instanceable = true
+        prepend references = @P:/AndreJukebox/assets/sets/block01_A/publish/usd/block01_A.usd@</block01_A_0001>
+    )
+    {
+        matrix4d xformOp:transform = ( (0.974687108055, 0, -0.223573346783, 0), (0, 1, 0, 0), (0.223573346783, 0, 0.974687108055, 0), (-2224.29115274, 0, 10134.0503922, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+    }
+```
+See how the matrix4d xform operator has been added to the previous example. That means now we have all the transforms we had in maya, translated and setup in USD referenced prims.
 
 
 
 
 
 ## **Step 4: Create the city**
+
+I could elaborate on this, but basically, this second script is exactly the same as the step above, it just stays in a level above. Since I don't have to go to the asset level, it has one less loop, and will only work on the blocks level.
+
+Which is what gives us our final City asset, in a single usd file.
+
+Could I merge those two scripts to make it all happen at once. YES I could. Will I? Probably not. I already got what I wanted from this, and I aim to never have to do it again.
+
+But in case I have, it's documented. 
+
+Hopefully for all of you who have sets that would like to bring into usd, this guide will clarify a thing or two. 
+
 ```python
 ### THIS CODE HAS TO BE EXECUTED FROM A PYTHON SCRIPT NODE IN SOLARIS
 
@@ -465,3 +520,7 @@ class blockbuild():
 
 blockbuild().blockslist()
 ```
+
+> The most difficult part were the ones that included USD python API, since it's not that well documented and I don't have a great understanding of all things usd so far.
+> So maybe it was just me not knowing how to look for stuff rather than poor documentation.
+
